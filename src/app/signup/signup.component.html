@@ -1,0 +1,19 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-900 px-4">
+  <div class="max-w-md w-full bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700">
+    <h2 class="text-3xl font-bold text-center text-white mb-8">Sign Up</h2>
+    
+    <div class="space-y-4">
+      <input #username type="text" placeholder="Username" class="w-full p-3 bg-gray-700 border border-gray-600 rounded text-white outline-none focus:border-indigo-500">
+      <input #password type="password" placeholder="Password" class="w-full p-3 bg-gray-700 border border-gray-600 rounded text-white outline-none focus:border-indigo-500">
+      
+      <button (click)="handleSignup(username.value, password.value)" 
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded transition">
+        Register
+      </button>
+      
+      <p class="text-gray-400 text-sm text-center">
+        Have an account? <a routerLink="/login" class="text-indigo-400">Login here</a>
+      </p>
+    </div>
+  </div>
+</div>
