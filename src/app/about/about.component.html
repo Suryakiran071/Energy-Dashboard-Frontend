@@ -1,1 +1,60 @@
-<p>about works!</p>
+<div class="min-h-screen bg-gray-900 p-8 text-gray-100">
+  <div class="max-w-4xl mx-auto text-center mb-16">
+    <h1 class="text-4xl font-extrabold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-4">
+      About EnergyHub v1.0
+    </h1>
+    <p class="text-gray-400 text-lg">
+      A comprehensive IoT monitoring solution designed for real-time demand analysis and industrial energy efficiency.
+    </p>
+  </div>
+
+  <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+    
+    <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-xl">
+      <div class="w-12 h-12 bg-indigo-500/20 rounded-lg flex items-center justify-center mb-6">
+        <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <h3 class="text-xl font-bold mb-4">The Objective</h3>
+      <p class="text-gray-400 leading-relaxed">
+        EnergyHub was developed to solve the "visibility gap" in industrial settings. By aggregating telemetry from multiple meters across various production lines, the system provides operators with instant insight into <strong>Total Load</strong> and <strong>Peak Demand</strong>.
+      </p>
+    </div>
+
+    <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-xl">
+      <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-6">
+        <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+      </div>
+      <h3 class="text-xl font-bold mb-4">The Technology</h3>
+      <ul class="space-y-3 text-gray-400">
+        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span> <strong>Backend:</strong> Spring Boot, JPA, PostgreSQL</li>
+        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span> <strong>Frontend:</strong> Angular 17+, Tailwind CSS</li>
+        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span> <strong>Analytics:</strong> Chart.js with DTO Aggregation</li>
+        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span> <strong>Security:</strong> Role-Based Access (Admin/Operator)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto mt-12 bg-gray-800/50 p-8 rounded-2xl border border-dashed border-gray-700">
+    <h3 class="text-center text-lg font-semibold text-gray-300 mb-8">How it Works</h3>
+    <div class="flex flex-col md:flex-row items-center justify-between gap-8 text-center">
+      <div class="flex-1">
+        <div class="text-indigo-400 font-bold mb-2">01. Telemetry</div>
+        <p class="text-xs text-gray-500">Meters push kWh readings every 30 mins.</p>
+      </div>
+      <div class="hidden md:block text-gray-700">➜</div>
+      <div class="flex-1">
+        <div class="text-indigo-400 font-bold mb-2">02. Aggregation</div>
+        <p class="text-xs text-gray-500">Java backend groups data into DTOs.</p>
+      </div>
+      <div class="hidden md:block text-gray-700">➜</div>
+      <div class="flex-1">
+        <div class="text-indigo-400 font-bold mb-2">03. Visualization</div>
+        <p class="text-xs text-gray-500">Angular renders real-time performance charts.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-16 text-center text-gray-600 text-sm">
+    Project Developed by <strong>Suuuuuuuuu</strong> • 2026 Energy Intelligence Systems
+  </div>
+</div>

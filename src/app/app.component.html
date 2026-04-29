@@ -1,40 +1,76 @@
-<div class="bg-gray-900 min-h-screen text-gray-100 relative">
-  <!-- Header with hamburger -->
-  <header class="bg-gradient-to-r from-indigo-700 to-purple-700 text-white p-6 rounded-lg shadow flex justify-between items-center">
-    <!-- Title -->
-    <div>
-      <h1 class="text-3xl font-bold">Energy Dashboard</h1>
+<div class="bg-gray-900 min-h-screen text-gray-100 relative overflow-x-hidden">
+  
+  <ng-container *ngIf="showNav">
+    <div *ngIf="menuOpen" 
+         (click)="toggleMenu()" 
+         class="fixed inset-0 bg-black/60 z-40 transition-opacity backdrop-blur-sm">
     </div>
 
-    <!-- Hamburger icon -->
-    <button (click)="toggleMenu()" class="text-white focus:outline-none">
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2"
-           viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>
-    </button>
-  </header>
+    <header class="bg-gradient-to-r from-indigo-700 to-purple-700 text-white p-6 shadow-lg flex justify-between items-center relative z-10">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Energy Dashboard</h1>
+      </div>
 
-  <!-- Routed page content -->
-  <router-outlet></router-outlet>
+      <button (click)="toggleMenu()" class="text-white focus:outline-none hover:scale-110 transition-transform">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </header>
 
-  <!-- Right side drawer with slide animation -->
-  <div class="fixed top-0 right-0 w-64 h-full bg-gray-800 shadow-lg p-6 transform transition-transform duration-300"
-       [class.translate-x-full]="!menuOpen"
-       [class.translate-x-0]="menuOpen">
-    <button (click)="toggleMenu()" class="text-gray-400 hover:text-gray-200 mb-6">Close ✕</button>
-    <nav class="flex flex-col space-y-4">
-      <a routerLink="/dashboard" routerLinkActive="text-indigo-400" class="hover:text-indigo-300">Dashboard</a>
-      <a routerLink="/analytics" routerLinkActive="text-indigo-400" class="hover:text-indigo-300">Analytics</a>
-      <a routerLink="/reports" routerLinkActive="text-indigo-400" class="hover:text-indigo-300">Reports</a>
-      <a routerLink="/settings" routerLinkActive="text-indigo-400" class="hover:text-indigo-300">Settings</a>
-      <a routerLink="/about" routerLinkActive="text-indigo-400" class="hover:text-indigo-300">About</a>
-      <button *ngIf="authService.isLoggedIn()" 
-        (click)="authService.logout()" 
-        class="text-red-500 font-bold px-4 py-2 hover:bg-red-100 rounded transition">
-        Logout
+    <div class="fixed top-0 right-0 w-72 h-full bg-gray-800 shadow-2xl p-6 transform transition-transform duration-300 z-50"
+         [class.translate-x-full]="!menuOpen"
+         [class.translate-x-0]="menuOpen">
+      
+      <div class="flex justify-between items-start mb-8">
+        <div class="flex items-center gap-3" *ngIf="authService.isLoggedIn()">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center border-2 border-gray-600 shadow-lg">
+            <span class="text-white font-bold text-xl">{{ getUserInitial() }}</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-sm font-bold text-gray-100 truncate w-32">{{ getUserName() }}</span>
+            <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Operator</span>
+          </div>
+        </div>
+
+        <button (click)="toggleMenu()" class="text-gray-400 hover:text-white transition-colors">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
         </button>
-    </nav>
-  </div>
+      </div>
+
+      <hr class="border-gray-700 mb-8">
+
+      <nav class="flex flex-col space-y-6 text-lg">
+        <a routerLink="/dashboard" (click)="toggleMenu()" routerLinkActive="text-indigo-400 font-semibold" class="hover:text-indigo-300 transition-colors flex items-center gap-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard
+        </a>
+        <a routerLink="/analytics" (click)="toggleMenu()" routerLinkActive="text-indigo-400 font-semibold" class="hover:text-indigo-300 transition-colors flex items-center gap-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Analytics
+        </a>
+        <a routerLink="/settings" (click)="toggleMenu()" routerLinkActive="text-indigo-400 font-semibold" class="hover:text-indigo-300 transition-colors flex items-center gap-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Settings
+        </a>
+        <a routerLink="/about" (click)="toggleMenu()" routerLinkActive="text-indigo-400 font-semibold" class="hover:text-indigo-300 transition-colors flex items-center gap-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          About
+        </a>
+        
+        <div class="pt-10">
+          <button *ngIf="authService.isLoggedIn()" 
+            (click)="authService.logout(); toggleMenu()" 
+            class="w-full flex items-center justify-center gap-2 text-red-500 font-bold px-4 py-3 border border-red-500/20 hover:bg-red-500/10 rounded-xl transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            Logout
+          </button>
+        </div>
+      </nav>
+    </div>
+  </ng-container>
+
+  <router-outlet></router-outlet>
 </div>

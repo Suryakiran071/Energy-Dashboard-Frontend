@@ -46,4 +46,16 @@ export class EnergyService {
       }
     });
   }
+
+  getLineComparison(date: string): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/analytics/comparison/lines`, {
+    params: { date }
+  });
+}
+
+getMeterComparison(lineId: number, date: string): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/analytics/comparison/meters`, {
+    params: { lineId: lineId.toString(), date }
+  });
+}
 }
