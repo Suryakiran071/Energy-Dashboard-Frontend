@@ -13,11 +13,17 @@ import Chart from 'chart.js/auto';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
+  // Expose global Number function to the template
+  protected readonly Number = Number;
+
+  paginatedReadings: any[] = [];
   lines: any[] = [];
   meters: any[] = [];
   readings: any[] = [];
   filteredMeters: any[] = [];
   
+  currentPage: number = 1;
+  pageSize: number = 10;
   currentUser: any;
   isRestricted: boolean = false;
   selectedLine: number | null = null;
@@ -25,82 +31,100 @@ export class DashboardComponent implements OnInit {
 
   peakDemand: number | string = '—';
   avgConsumption: number | string = '—';
+  thresholdLimit: number = 100; // Default
   chart: any;
 
-  // Single constructor injecting both services
   constructor(
     public energyService: EnergyService,
     private authService: AuthService
   ) {}
 
   ngOnInit() {
-  this.currentUser = this.authService.getUser();
+    this.currentUser = this.authService.getUser();
 
-  // 1. Lock the line immediately if they are an operator
-  if (this.currentUser && this.currentUser.role === 'ROLE_USER' && this.currentUser.assignedLine) {
-    this.isRestricted = true;
-    this.selectedLine = this.currentUser.assignedLine.id;
-  }
+    // Sync threshold from Settings/Service
+    this.energyService.currentThreshold.subscribe(val => {
+      this.thresholdLimit = val;
+      if (this.chart) this.renderChart();
+    });
 
-  // 2. Fetch everything
-  this.loadInitialData();
-}
-
-  loadInitialData() {
-  // Fetch Lines and Meters in parallel (or nested) to ensure we have names
-  this.energyService.getLines().subscribe(lines => {
-    this.lines = lines;
-    // Only auto-select the first line if the user isn't already locked to one
-    if (!this.selectedLine && this.lines.length > 0) {
-      this.selectedLine = this.lines[0].id;
+    if (this.currentUser && this.currentUser.role === 'ROLE_USER' && this.currentUser.assignedLine) {
+      this.isRestricted = true;
+      this.selectedLine = this.currentUser.assignedLine.id;
     }
 
-    this.energyService.getMeters().subscribe(meters => {
-      this.meters = meters;
-      this.updateDashboard(); // Run the first update
-    });
-  });
-}
+    this.loadInitialData();
+  }
 
-  loadMetersAndSync() {
-    this.energyService.getMeters().subscribe((data: any) => {
-      this.meters = data;
-      this.updateDashboard(); 
+  loadInitialData() {
+    this.energyService.getLines().subscribe(lines => {
+      this.lines = lines;
+      if (!this.selectedLine && this.lines.length > 0) {
+        this.selectedLine = this.lines[0].id;
+      }
+      this.energyService.getMeters().subscribe(meters => {
+        this.meters = meters;
+        this.updateDashboard();
+      });
     });
   }
+
+  updatePaginatedReadings() {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedReadings = this.readings.slice(startIndex, endIndex);
+  }
+
+  setPage(page: number) {
+    this.currentPage = page;
+    this.updatePaginatedReadings();
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.readings.length / this.pageSize);
+  }
+
+  isOverThreshold(): boolean {
+  // Ensure we are working with actual numbers
+  const currentPeak = parseFloat(this.peakDemand.toString());
+  const limit = Number(this.thresholdLimit);
+
+  // This log will tell us exactly why it's not showing
+  console.log(`Checking Alert: Peak(${currentPeak}) > Limit(${limit})? Result: ${currentPeak > limit}`);
+
+  // Return true only if it's a valid number and strictly greater than the limit
+  return !isNaN(currentPeak) && currentPeak > limit;
+}
 
   onFilterChange(type: 'line' | 'date', value: any) {
-  console.log(`Filter changed: ${type} = ${value}`); // Debug log
-  
-  if (type === 'line' && !this.isRestricted) {
-    this.selectedLine = Number(value);
+    if (type === 'line' && !this.isRestricted) this.selectedLine = Number(value);
+    if (type === 'date') this.selectedDate = value;
+    this.updateDashboard();
   }
-  
-  if (type === 'date') {
-    this.selectedDate = value; // This must be in YYYY-MM-DD format
-  }
-
-  // CRITICAL: This must be called to fetch new data for the new date!
-  this.updateDashboard();
-}
 
   updateDashboard() {
     if (this.selectedLine === null) return;
 
-    // Filter meters based on selected line
     this.filteredMeters = this.meters.filter(m => 
       m.line && Number(m.line.id) === this.selectedLine
     );
 
-    // Fetch data
-    this.energyService.getReadings(this.selectedLine, this.selectedDate).subscribe((data: any) => {
-      this.readings = data;
+    this.energyService.getReadings(this.selectedLine, this.selectedDate).subscribe((data: any[]) => {
+      // Normalize to Local Time
+      this.readings = data.map(r => ({
+        ...r,
+        ts: new Date(r.ts)
+      }));
+
+      this.currentPage = 1;
+      this.updatePaginatedReadings();
       this.calculateStats();
       this.renderChart();
     });
 
     this.energyService.getPeakReading(this.selectedLine, this.selectedDate).subscribe((data: any) => {
-      this.peakDemand = data?.kwh || '—';
+      // We still update peakDemand via API for robustness, 
+      // but calculateStats handles the UI value.
     });
   }
 
@@ -113,81 +137,66 @@ export class DashboardComponent implements OnInit {
   }
 
   private calculateStats() {
-  if (this.readings.length > 0) {
-    // 1. Calculate Average (as we discussed)
-    const total = this.readings.reduce((acc: number, curr: any) => acc + Number(curr.kwh), 0);
-    this.avgConsumption = (total / this.readings.length).toFixed(2);
-
-    // 2. Calculate Peak Demand (Finding the highest single reading)
-    // We use Math.max to find the largest 'kwh' value in the array
-    const kwhValues = this.readings.map(r => Number(r.kwh));
-    const maxKwh = Math.max(...kwhValues);
-    
-    this.peakDemand = maxKwh.toFixed(2); // This will show 58.20 for Line A
-  } else {
-    this.avgConsumption = '—';
-    this.peakDemand = '—';
+    if (this.readings.length > 0) {
+      const total = this.readings.reduce((acc: number, curr: any) => acc + Number(curr.kwh), 0);
+      this.avgConsumption = (total / this.readings.length).toFixed(2);
+      const kwhValues = this.readings.map(r => Number(r.kwh));
+      this.peakDemand = Math.max(...kwhValues).toFixed(2);
+    } else {
+      this.avgConsumption = '—';
+      this.peakDemand = '—';
+    }
   }
-}
 
   private renderChart() {
-  const canvas = document.getElementById('demandChart') as HTMLCanvasElement;
-  if (!canvas || this.readings.length === 0) return;
-  if (this.chart) this.chart.destroy();
+    const canvas = document.getElementById('demandChart') as HTMLCanvasElement;
+    if (!canvas || this.readings.length === 0) return;
+    if (this.chart) this.chart.destroy();
 
-  // 1. GROUP AND SUM: Combine all meters by their timestamp
-  const groupedData = this.readings.reduce((acc: any, curr: any) => {
-    // We create a unique key based on the time (e.g., "10:30 AM")
-    const timeKey = new Date(curr.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
-    if (!acc[timeKey]) {
-      acc[timeKey] = 0;
-    }
-    acc[timeKey] += Number(curr.kwh); // Sum the kWh for all meters at this time
-    return acc;
-  }, {});
+    const groupedData = this.readings.reduce((acc: any, curr: any) => {
+      const timeKey = curr.ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+      if (!acc[timeKey]) acc[timeKey] = 0;
+      acc[timeKey] += Number(curr.kwh);
+      return acc;
+    }, {});
 
-  // 2. SORT: Ensure the times are in order (8am -> 12pm -> 6pm)
-  const sortedLabels = Object.keys(groupedData).sort((a, b) => {
-    return new Date('1970/01/01 ' + a).getTime() - new Date('1970/01/01 ' + b).getTime();
-  });
-  const finalValues = sortedLabels.map(label => groupedData[label]);
+    const sortedLabels = Object.keys(groupedData).sort((a, b) => {
+      return new Date('1970/01/01 ' + a).getTime() - new Date('1970/01/01 ' + b).getTime();
+    });
 
-  // 3. RENDER: Create a clean, single-line chart
-  this.chart = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels: sortedLabels,
-      datasets: [{
-        label: 'Total Line Load (kWh)',
-        data: finalValues,
-        borderColor: '#6366f1', // Sleek Indigo
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-        fill: true,
-        tension: 0.4, // Smooth "S-curve" instead of jagged lines
-        pointRadius: 4,
-        pointBackgroundColor: '#6366f1',
-        borderWidth: 3
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false } // Hide legend for a cleaner look
+    const finalValues = sortedLabels.map(label => groupedData[label]);
+    const maxValue = Math.max(...finalValues);
+
+    this.chart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: sortedLabels,
+        datasets: [{
+          label: 'Total Line Load (kWh)',
+          data: finalValues,
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 3,
+          pointBackgroundColor: finalValues.map(v => {
+            if (v >= this.thresholdLimit) return '#ef4444'; 
+            return v === maxValue ? '#fbbf24' : '#6366f1';
+          }),
+          pointRadius: finalValues.map(v => v >= this.thresholdLimit ? 8 : 4),
+          pointBorderColor: '#ffffff',
+          pointHoverRadius: 10
+        }]
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#9ca3af' }
-        },
-        x: {
-          grid: { display: false },
-          ticks: { color: '#9ca3af' }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } },
+          x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
         }
       }
-    }
-  });
-}
+    });
+  }
 }

@@ -1,14 +1,22 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject,Observable } from 'rxjs';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class EnergyService {
   private apiUrl = '/api';
+// We use a BehaviorSubject so components can "subscribe" to threshold changes
+  private thresholdSource = new BehaviorSubject<number>(100); 
+  currentThreshold = this.thresholdSource.asObservable();
 
   constructor(private http: HttpClient) {}
+
+  updateThreshold(newLimit: number) {
+    this.thresholdSource.next(newLimit);
+  }
 
   getLines(): Observable<any> {
     return this.http.get(`${this.apiUrl}/lines`);

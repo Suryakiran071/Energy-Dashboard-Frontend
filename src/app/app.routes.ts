@@ -7,6 +7,7 @@ import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { authGuard } from './guards/auth.guard'; // Import the guard
 import { AdminManagementComponent } from './admin-management/admin-management.component';
+import { ReportsComponent } from './reports/reports.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -15,6 +16,7 @@ export const routes: Routes = [
   // Protected Routes
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'analytics', component: AnalyticsComponent, canActivate: [authGuard] },
+  { path: 'reports', component: ReportsComponent, canActivate: [authGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
   { path: 'about', component: AboutComponent, canActivate: [authGuard] },
   { 

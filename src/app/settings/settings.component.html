@@ -1,1 +1,88 @@
-<p>settings works!</p>
+<div class="min-h-screen bg-gray-900 p-8 text-gray-100">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold tracking-tight">System Settings</h1>
+      <button (click)="saveSettings()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-bold transition shadow-lg shadow-indigo-500/20">
+        Save Changes
+      </button>
+    </div>
+
+    <div class="space-y-6">
+      
+      <section class="bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-xl">
+        <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">User Identity</h2>
+        <div class="flex items-center gap-6">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-3xl font-bold shadow-2xl border-4 border-gray-700">
+            {{ getUserInitial() }}
+          </div>
+          <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-xs text-gray-500 uppercase">Username</p>
+              <p class="text-lg font-semibold">{{ currentUser?.username }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500 uppercase">Role</p>
+              <p class="text-indigo-400 font-bold uppercase text-sm">{{ currentUser?.role }}</p>
+            </div>
+            <div *ngIf="currentUser?.assignedLine">
+              <p class="text-xs text-gray-500 uppercase">Assigned Station</p>
+              <p class="text-gray-300">{{ currentUser.assignedLine.name }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-xl">
+        <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Dashboard Preferences</h2>
+        
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-medium">Peak Warning Threshold</p>
+              <p class="text-gray-500 text-xs">Alert level for high kWh consumption detection.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="number" [(ngModel)]="thresholdLimit" class="w-24 bg-gray-700 border border-gray-600 rounded p-2 text-white text-center outline-none focus:border-indigo-500">
+              <span class="text-gray-400 text-sm">kWh</span>
+            </div>
+          </div>
+
+          <hr class="border-gray-700">
+
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-medium">Data Refresh Rate</p>
+              <p class="text-gray-500 text-xs">How often the dashboard polls the IoT server.</p>
+            </div>
+            <select [(ngModel)]="refreshInterval" class="bg-gray-700 border border-gray-600 rounded p-2 text-sm outline-none focus:border-indigo-500">
+              <option value="5">Every 5 Minutes</option>
+              <option value="15">Every 15 Minutes</option>
+              <option value="manual">Manual Only</option>
+            </select>
+          </div>
+
+          <hr class="border-gray-700">
+
+          <div class="flex items-center justify-between">
+            <p class="font-medium">Email Alerts for Peak Spikes</p>
+            <button (click)="notificationsEnabled = !notificationsEnabled" 
+                    [class.bg-indigo-600]="notificationsEnabled"
+                    [class.bg-gray-600]="!notificationsEnabled"
+                    class="w-12 h-6 rounded-full relative transition-colors">
+              <div [style.left.px]="notificationsEnabled ? 26 : 4" class="absolute top-1 w-4 h-4 bg-white rounded-full transition-all"></div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-red-500/5 p-6 rounded-2xl border border-red-900/20">
+        <h2 class="text-sm font-bold text-red-500 uppercase tracking-widest mb-4">Danger Zone</h2>
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-gray-500">Log out of all active sessions and clear cache.</p>
+          <button (click)="authService.logout()" class="text-red-500 hover:text-red-400 font-bold text-sm underline transition">Sign Out Everywhere</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
