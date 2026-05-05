@@ -6,49 +6,72 @@ import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private url = 'http://localhost:8090/api/auth';
+  
+  // Define shared options to keep the code clean
+  private httpOptions = { withCredentials: true };
 
   constructor(private http: HttpClient, private router: Router) {}
 
-
   login(credentials: any) {
-    return this.http.post(`${this.url}/login`, credentials);
+    // Standard login - receives the JSESSIONID cookie
+    return this.http.post(`${this.url}/login`, credentials, this.httpOptions);
   }
 
   signup(user: any) {
-    return this.http.post(`${this.url}/signup`, user);
+    // Signup might not strictly need credentials depending on backend config,
+    // but adding it ensures consistency if session tracking starts early.
+    return this.http.post(`${this.url}/signup`, user, this.httpOptions);
   }
 
-  // Save user object to browser memory
   setSession(user: any) {
     localStorage.setItem('currentUser', JSON.stringify(user));
   }
 
-  // Get user details
   getUser() {
     const user = localStorage.getItem('currentUser');
     return user ? JSON.parse(user) : null;
   }
 
   logout() {
+    // Tell the backend to kill the session
+    this.http.post(`${this.url}/logout`, {}, this.httpOptions)
+      .subscribe({
+        next: () => {
+          this.clearLocalData();
+        },
+        error: () => {
+          // Even if the server fails, we clear local data
+          this.clearLocalData();
+        }
+      });
+  }
+
+  private clearLocalData() {
     localStorage.removeItem('currentUser');
     this.router.navigate(['/login']);
   }
 
   isLoggedIn(): boolean {
-  const user = localStorage.getItem('currentUser');
-  // This covers null, undefined, and empty strings
-  return !!user && user !== 'null' && user !== 'undefined';
-}
-getAllUsers() {
-  return this.http.get<any[]>(`http://localhost:8090/api/users`);
-}
+    const user = localStorage.getItem('currentUser');
+    return !!user && user !== 'null' && user !== 'undefined';
+  }
 
-approveUser(userId: number, lineId: number) {
-  // We send lineId as a Query Parameter just like we did in Postman
-  return this.http.put(`http://localhost:8090/api/users/${userId}/approve?lineId=${lineId}`, {});
-}
-getLines(): Observable<any[]> {
-  // Ensure the port (8090) and path (/api/lines) match your working backend URL
-  return this.http.get<any[]>('http://localhost:8090/api/lines');
-}
+  getAllUsers() {
+    // Required to send the cookie to access protected user list
+    return this.http.get<any[]>(`http://localhost:8090/api/users`, this.httpOptions);
+  }
+
+  approveUser(userId: number, lineId: number) {
+    // Required to send the cookie to perform administrative actions
+    return this.http.put(
+      `http://localhost:8090/api/users/${userId}/approve?lineId=${lineId}`, 
+      {}, 
+      this.httpOptions
+    );
+  }
+
+  getLines(): Observable<any[]> {
+    // Required to send the cookie to fetch lines
+    return this.http.get<any[]>('http://localhost:8090/api/lines', this.httpOptions);
+  }
 }
