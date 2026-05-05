@@ -15,7 +15,7 @@ export class SettingsComponent implements OnInit {
   currentUser: any;
   
   // UI States
-  thresholdLimit: number = 100;
+  thresholdLimit: number = 75;
   refreshInterval: string = '15';
   darkMode: boolean = true;
   notificationsEnabled: boolean = true;

@@ -32,6 +32,7 @@ export class AuthService {
     return user ? JSON.parse(user) : null;
   }
 
+
   logout() {
     // Tell the backend to kill the session
     this.http.post(`${this.url}/logout`, {}, this.httpOptions)
