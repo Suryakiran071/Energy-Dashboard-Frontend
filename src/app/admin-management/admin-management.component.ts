@@ -33,6 +33,20 @@ export class AdminManagementComponent implements OnInit {
     });
   }
 
+  onDecline(userId: number) {
+    if (!confirm('Decline and remove this user?')) return;
+    this.authService.declineUser(userId).subscribe({
+      next: () => {
+        alert('User declined and removed.');
+        this.loadUsers();
+      },
+      error: (err: any) => {
+        alert('Could not decline user.');
+        console.error(err);
+      }
+    });
+  }
+
   onApprove(userId: number, lineIdValue: string) {
   const lineId = parseInt(lineIdValue); // Convert the dropdown string value to a number
   

@@ -1,8 +1,8 @@
 <div class="bg-gray-900 min-h-screen text-gray-100 relative overflow-x-hidden">
-  
+
   <ng-container *ngIf="showNav">
-    <div *ngIf="menuOpen" 
-         (click)="toggleMenu()" 
+    <div *ngIf="menuOpen"
+         (click)="toggleMenu()"
          class="fixed inset-0 bg-black/60 z-40 transition-opacity backdrop-blur-sm">
     </div>
 
@@ -21,7 +21,7 @@
     <div class="fixed top-0 right-0 w-72 h-full bg-gray-800 shadow-2xl p-6 transform transition-transform duration-300 z-50"
          [class.translate-x-full]="!menuOpen"
          [class.translate-x-0]="menuOpen">
-      
+
       <div class="flex justify-between items-start mb-8">
         <div class="flex items-center gap-3" *ngIf="authService.isLoggedIn()">
           <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center border-2 border-gray-600 shadow-lg">
@@ -29,7 +29,11 @@
           </div>
           <div class="flex flex-col">
             <span class="text-sm font-bold text-gray-100 truncate w-32">{{ getUserName() }}</span>
-            <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Operator</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest"
+                  [class.text-indigo-400]="!isAdmin()"
+                  [class.text-amber-400]="isAdmin()">
+              {{ isAdmin() ? 'Administrator' : 'Operator' }}
+            </span>
           </div>
         </div>
 
@@ -63,11 +67,28 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           About
         </a>
-        
-        <div class="pt-10">
-          <button *ngIf="authService.isLoggedIn()" 
-            (click)="authService.logout(); toggleMenu()" 
-            class="w-full flex items-center justify-center gap-2 text-red-500 font-bold px-4 py-3 border border-red-500/20 hover:bg-red-500/10 rounded-xl transition">
+
+        <!-- ADMIN ONLY: Admin Panel link, hidden from regular operators -->
+        <ng-container *ngIf="isAdmin()">
+          <hr class="border-gray-700">
+          <a routerLink="/admin" (click)="toggleMenu()"
+             routerLinkActive="bg-amber-500/20 text-amber-300"
+             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 hover:text-amber-300 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+            Admin Panel
+            <span class="ml-auto text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-amber-500/30">
+              Admin
+            </span>
+          </a>
+        </ng-container>
+
+        <div class="pt-6">
+          <button *ngIf="authService.isLoggedIn()"
+                  (click)="authService.logout(); toggleMenu()"
+                  class="w-full flex items-center justify-center gap-2 text-red-500 font-bold px-4 py-3 border border-red-500/20 hover:bg-red-500/10 rounded-xl transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
             Logout
           </button>

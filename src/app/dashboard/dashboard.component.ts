@@ -31,7 +31,7 @@ export class DashboardComponent implements OnInit {
 
   peakDemand: number | string = '—';
   avgConsumption: number | string = '—';
-  thresholdLimit: number = 100; // Default
+  thresholdLimit: number = 75;
   chart: any;
 
   constructor(

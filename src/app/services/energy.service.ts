@@ -9,7 +9,7 @@ import { BehaviorSubject,Observable } from 'rxjs';
 export class EnergyService {
   private apiUrl = '/api';
 // We use a BehaviorSubject so components can "subscribe" to threshold changes
-  private thresholdSource = new BehaviorSubject<number>(100); 
+  private thresholdSource = new BehaviorSubject<number>(75);
   currentThreshold = this.thresholdSource.asObservable();
 
   constructor(private http: HttpClient) {}

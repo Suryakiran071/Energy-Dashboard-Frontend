@@ -29,6 +29,7 @@ export class AuthService {
     return user ? JSON.parse(user) : null;
   }
 
+
   logout() {
     localStorage.removeItem('currentUser');
     this.router.navigate(['/login']);
@@ -44,8 +45,11 @@ getAllUsers() {
 }
 
 approveUser(userId: number, lineId: number) {
-  // We send lineId as a Query Parameter just like we did in Postman
   return this.http.put(`http://localhost:8090/api/users/${userId}/approve?lineId=${lineId}`, {});
+}
+
+declineUser(userId: number) {
+  return this.http.delete(`http://localhost:8090/api/users/${userId}`);
 }
 getLines(): Observable<any[]> {
   // Ensure the port (8090) and path (/api/lines) match your working backend URL

@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, RouterLink, Router, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -41,4 +41,9 @@ export class AppComponent {
     const user = this.authService.getUser();
     return user ? user.username : 'User';
   }
+
+  isAdmin(): boolean {
+      const user = this.authService.getUser();
+      return user?.role === 'ROLE_ADMIN';
+    }
 }
