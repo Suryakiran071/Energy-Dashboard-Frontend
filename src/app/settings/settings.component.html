@@ -63,18 +63,8 @@
 
           <hr class="border-gray-700">
 
-          <div class="flex items-center justify-between">
-            <p class="font-medium">Email Alerts for Peak Spikes</p>
-            <button (click)="notificationsEnabled = !notificationsEnabled" 
-                    [class.bg-indigo-600]="notificationsEnabled"
-                    [class.bg-gray-600]="!notificationsEnabled"
-                    class="w-12 h-6 rounded-full relative transition-colors">
-              <div [style.left.px]="notificationsEnabled ? 26 : 4" class="absolute top-1 w-4 h-4 bg-white rounded-full transition-all"></div>
-            </button>
-          </div>
         </div>
       </section>
-
       <section class="bg-red-500/5 p-6 rounded-2xl border border-red-900/20">
         <h2 class="text-sm font-bold text-red-500 uppercase tracking-widest mb-4">Danger Zone</h2>
         <div class="flex items-center justify-between">

@@ -70,6 +70,12 @@ export class AuthService {
       this.httpOptions
     );
   }
+  
+  // Add this inside your AuthService class
+declineUser(userId: number) {
+  // We use the shared httpOptions to ensure the Admin's session cookie is sent
+  return this.http.delete(`http://localhost:8090/api/users/${userId}`, this.httpOptions);
+}
 
   getLines(): Observable<any[]> {
     // Required to send the cookie to fetch lines
