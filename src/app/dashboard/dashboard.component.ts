@@ -42,7 +42,6 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.currentUser = this.authService.getUser();
 
-    // Sync threshold from Settings/Service
     this.energyService.currentThreshold.subscribe(val => {
       this.thresholdLimit = val;
       if (this.chart) this.renderChart();
@@ -85,16 +84,10 @@ export class DashboardComponent implements OnInit {
   }
 
   isOverThreshold(): boolean {
-  // Ensure we are working with actual numbers
-  const currentPeak = parseFloat(this.peakDemand.toString());
-  const limit = Number(this.thresholdLimit);
-
-  // This log will tell us exactly why it's not showing
-  console.log(`Checking Alert: Peak(${currentPeak}) > Limit(${limit})? Result: ${currentPeak > limit}`);
-
-  // Return true only if it's a valid number and strictly greater than the limit
-  return !isNaN(currentPeak) && currentPeak > limit;
-}
+    const currentPeak = parseFloat(this.peakDemand.toString());
+    const limit = Number(this.thresholdLimit);
+    return !isNaN(currentPeak) && currentPeak > limit;
+  }
 
   onFilterChange(type: 'line' | 'date', value: any) {
     if (type === 'line' && !this.isRestricted) this.selectedLine = Number(value);

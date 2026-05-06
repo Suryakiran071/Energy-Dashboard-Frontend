@@ -57,13 +57,11 @@ export class AuthService {
     return !!user && user !== 'null' && user !== 'undefined';
   }
 
-  getAllUsers() {
-    // Required to send the cookie to access protected user list
+  getAllUsers() :Observable<any[]> {
     return this.http.get<any[]>(`http://localhost:8090/api/users`, this.httpOptions);
   }
 
   approveUser(userId: number, lineId: number) {
-    // Required to send the cookie to perform administrative actions
     return this.http.put(
       `http://localhost:8090/api/users/${userId}/approve?lineId=${lineId}`, 
       {}, 
@@ -71,14 +69,11 @@ export class AuthService {
     );
   }
   
-  // Add this inside your AuthService class
-declineUser(userId: number) {
-  // We use the shared httpOptions to ensure the Admin's session cookie is sent
-  return this.http.delete(`http://localhost:8090/api/users/${userId}`, this.httpOptions);
-}
+  declineUser(userId: number) {
+    return this.http.delete(`http://localhost:8090/api/users/${userId}`, this.httpOptions);
+  }
 
   getLines(): Observable<any[]> {
-    // Required to send the cookie to fetch lines
     return this.http.get<any[]>('http://localhost:8090/api/lines', this.httpOptions);
   }
 }

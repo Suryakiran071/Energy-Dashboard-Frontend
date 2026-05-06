@@ -1,22 +1,31 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; 
+import { EnergyService } from '../services/energy.service';
 
 @Component({
   selector: 'app-admin-management',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-management.component.html'
 })
 export class AdminManagementComponent implements OnInit {
   users: any[] = [];
-  lines: any[] = []; // Store the lines from the DB here
+  lines: any[] = [];
+  
+  showLineModal = false;
+  showMeterModal = false;
+  newLine = { name: '' };
+  newMeter = { name: '', lineId: null as number | null };
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,
+    private energyService: EnergyService
+  ) {}
 
   ngOnInit() {
     this.loadUsers();
-    this.loadLines(); // Load lines on startup
+    this.loadLines(); 
   }
 
   loadLines() {
@@ -33,6 +42,41 @@ export class AdminManagementComponent implements OnInit {
     });
   }
 
+
+  saveLine() {
+    if (!this.newLine.name) return;
+    this.energyService.createLine(this.newLine).subscribe({
+      next: () => {
+        alert('Production Line created successfully!');
+        this.newLine.name = '';
+        this.showLineModal = false;
+        this.loadLines();
+      },
+      error: (err) => alert('Failed to create line.')
+    });
+  }
+
+  saveMeter() {
+    if (!this.newMeter.name || !this.newMeter.lineId) {
+      alert('Please provide a name and select a line.');
+      return;
+    }
+    
+    const payload = {
+      name: this.newMeter.name,
+      line: { id: this.newMeter.lineId } 
+    };
+
+    this.energyService.createMeter(payload).subscribe({
+      next: () => {
+        alert('IoT Meter provisioned successfully!');
+        this.newMeter = { name: '', lineId: null };
+        this.showMeterModal = false;
+      },
+      error: (err) => alert('Failed to create meter.')
+    });
+  }
+
   onDecline(userId: number) {
     if (!confirm('Decline and remove this user?')) return;
     this.authService.declineUser(userId).subscribe({
@@ -40,26 +84,18 @@ export class AdminManagementComponent implements OnInit {
         alert('User declined and removed.');
         this.loadUsers();
       },
-      error: (err: any) => {
-        alert('Could not decline user.');
-        console.error(err);
-      }
+      error: (err: any) => console.error(err)
     });
   }
 
   onApprove(userId: number, lineIdValue: string) {
-  const lineId = parseInt(lineIdValue); // Convert the dropdown string value to a number
-  
-  this.authService.approveUser(userId, lineId).subscribe({
-    next: (response: any) => {
-      alert(`User approved and assigned to ${response.assignedLine.name}!`);
-      this.loadUsers(); // Refresh the table list
-    },
-    error: (err: any) => {
-      alert('Approval failed. Make sure the Line ID exists in the database.');
-      console.error(err);
-    }
-  });
-}
-
+    const lineId = parseInt(lineIdValue);
+    this.authService.approveUser(userId, lineId).subscribe({
+      next: (response: any) => {
+        alert(`User approved and assigned to ${response.assignedLine?.name}!`);
+        this.loadUsers();
+      },
+      error: (err: any) => alert('Approval failed.')
+    });
+  }
 }

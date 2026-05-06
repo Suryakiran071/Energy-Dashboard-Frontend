@@ -1,17 +1,21 @@
 <div class="p-8 bg-gray-900 min-h-screen font-sans">
+  
   <div class="flex justify-between items-center mb-8">
     <div>
       <h1 class="text-3xl font-extrabold text-white tracking-tight">System Control</h1>
-      <p class="text-gray-400 text-sm">Manage user access and production line assignments</p>
+      <p class="text-gray-400 text-sm">Manage users and factory infrastructure</p>
     </div>
-    <div class="flex flex-col items-end">
-      <span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest shadow-sm">
-        Admin Mode
-      </span>
-      <span class="text-[10px] text-gray-500 mt-1 italic">Connected to Port 8090</span>
+    <div class="flex gap-4">
+      <button (click)="showLineModal = true" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-900/20">
+        + Add Line
+      </button>
+      <button (click)="showMeterModal = true" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-900/20">
+        + Provision Meter
+      </button>
     </div>
   </div>
 
+  <!-- Main Table Section (Users) -->
   <div class="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden border border-gray-700/50">
     <table class="w-full text-left">
       <thead class="bg-gray-700/50 text-gray-400 uppercase text-[11px] font-bold tracking-widest border-b border-gray-700">
@@ -24,7 +28,6 @@
       </thead>
       <tbody class="divide-y divide-gray-700/50">
         <tr *ngFor="let user of users" class="group hover:bg-gray-700/30 transition-all duration-200">
-
           <td class="px-6 py-4">
             <div class="flex items-center">
               <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg mr-3">
@@ -36,13 +39,11 @@
               </div>
             </div>
           </td>
-
           <td class="px-6 py-4">
             <span class="px-2 py-1 bg-gray-900/50 border border-gray-700 rounded text-[10px] font-bold text-gray-400 uppercase">
               {{ user.role }}
             </span>
           </td>
-
           <td class="px-6 py-4 text-center">
             <div *ngIf="user.approved" class="inline-flex items-center text-green-400 bg-green-400/5 px-3 py-1 rounded-full border border-green-400/20 text-[10px] font-bold uppercase">
               <span class="h-1.5 w-1.5 bg-green-500 rounded-full mr-2 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
@@ -53,53 +54,54 @@
               Pending
             </div>
           </td>
-
           <td class="px-6 py-4">
             <div class="flex items-center justify-end space-x-3">
-
               <ng-container *ngIf="!user.approved">
-                <div class="relative">
-                  <select #lineSelect
-                    class="appearance-none bg-gray-900 border border-gray-600 text-gray-200 text-xs rounded-lg block w-40 p-2.5 pr-8 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer transition-all">
-                    <option *ngFor="let line of lines" [value]="line.id">
-                      {{ line.name }}
-                    </option>
-                  </select>
-                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                  </div>
-                </div>
-
-                <button (click)="onApprove(user.id, lineSelect.value)"
-                  class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-95">
+                <select #lineSelect class="bg-gray-900 border border-gray-600 text-gray-200 text-xs rounded-lg p-2 outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option *ngFor="let line of lines" [value]="line.id">{{ line.name }}</option>
+                </select>
+                <button (click)="onApprove(user.id, lineSelect.value)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-lg active:scale-95">
                   Approve
                 </button>
-                <button (click)="onDecline(user.id)"
-                        class="bg-red-700 hover:bg-red-600 text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-lg hover:shadow-red-500/20 active:scale-95">
+                <button (click)="onDecline(user.id)" class="bg-red-700 hover:bg-red-600 text-white px-5 py-2 rounded-lg text-xs font-bold transition-all shadow-lg active:scale-95">
                   Decline
                 </button>
               </ng-container>
-
               <ng-container *ngIf="user.approved">
-                <div class="flex flex-col items-end">
-                  <span class="text-[10px] text-gray-500 uppercase font-bold tracking-tighter mb-1">Station Assignment</span>
-                  <span class="bg-gray-900 text-indigo-400 px-3 py-1.5 rounded-md border border-indigo-500/20 text-[11px] font-mono font-bold shadow-inner uppercase">
-                    {{ user.assignedLine?.name || 'Central Command' }}
-                  </span>
-                </div>
+                <span class="bg-gray-900 text-indigo-400 px-3 py-1.5 rounded-md border border-indigo-500/20 text-[11px] font-mono font-bold shadow-inner uppercase">
+                  {{ user.assignedLine?.name || 'Central Command' }}
+                </span>
               </ng-container>
-
             </div>
           </td>
         </tr>
       </tbody>
     </table>
+  </div>
 
-    <div *ngIf="users.length === 0" class="p-20 text-center">
-      <div class="text-gray-600 text-5xl mb-4 opacity-20">
-        <i class="fas fa-users-slash"></i>
+  <div *ngIf="showLineModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-800 border border-gray-700 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+      <h2 class="text-xl font-bold text-white mb-4">Add Production Line</h2>
+      <input [(ngModel)]="newLine.name" type="text" placeholder="Line Name" class="w-full bg-gray-900 border border-gray-600 rounded-lg p-3 text-white mb-4">
+      <div class="flex gap-2">
+        <button (click)="showLineModal = false" class="flex-1 bg-gray-700 text-white py-2 rounded-lg font-bold">Cancel</button>
+        <button (click)="saveLine()" class="flex-1 bg-emerald-600 text-white py-2 rounded-lg font-bold">Save Line</button>
       </div>
-      <p class="text-gray-500 font-medium italic">No personnel detected in database.</p>
+    </div>
+  </div>
+
+  <div *ngIf="showMeterModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-800 border border-gray-700 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+      <h2 class="text-xl font-bold text-white mb-4">Provision IoT Meter</h2>
+      <input [(ngModel)]="newMeter.name" type="text" placeholder="Meter Name" class="w-full bg-gray-900 border border-gray-600 rounded-lg p-3 text-white mb-4">
+      <select [(ngModel)]="newMeter.lineId" class="w-full bg-gray-900 border border-gray-600 rounded-lg p-3 text-white mb-4">
+        <option [ngValue]="null">Select Parent Line</option>
+        <option *ngFor="let l of lines" [value]="l.id">{{ l.name }}</option>
+      </select>
+      <div class="flex gap-2">
+        <button (click)="showMeterModal = false" class="flex-1 bg-gray-700 text-white py-2 rounded-lg font-bold">Cancel</button>
+        <button (click)="saveMeter()" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold">Add Meter</button>
+      </div>
     </div>
   </div>
 </div>

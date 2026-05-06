@@ -70,4 +70,14 @@ export class EnergyService {
       ...this.httpOptions
     });
   }
+
+createLine(line: any) {
+  return this.http.post('http://localhost:8090/api/lines', line, this.httpOptions);
 }
+
+createMeter(meter: any) {
+  return this.http.post('http://localhost:8090/api/meters', meter, this.httpOptions);
+}
+
+}
+
