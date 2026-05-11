@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms'; // Step 2: Import FormsModule and NgForm
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule], // Add FormsModule here
   templateUrl: './signup.component.html'
 })
 export class SignupComponent {
@@ -14,36 +15,25 @@ export class SignupComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  handleSignup(u: string, p: string) {
+  handleSignup(form: NgForm) {
+    if (form.invalid) return;
+
+    const userData = form.value; 
+    const p = userData.password;
     this.passwordError = '';
 
-    // Email format validation regex
-    const emailPattern = /^[a-zA-Z0-0._%+-]+@[a-zA-Z0-0.-]+\.[a-zA-Z]{2,}$/;
-
-    if (!u || !emailPattern.test(u)) {
-      this.passwordError = 'Please enter a valid email address.';
-      return;
-    }
-    
-    // Password Validations
-    if (p.length < 8) {
-      this.passwordError = 'Password must be at least 8 characters.';
-      return;
-    }
     if (!/[A-Z]/.test(p) || !/[0-9]/.test(p) || !/[!@#$%^&*]/.test(p)) {
-      this.passwordError = 'Password must include Uppercase, Number, and Symbol.';
+      this.passwordError = 'Include an Uppercase letter, Number, and Symbol.';
       return;
     }
 
-    const payload = { username: u, password: p };
-    
-    this.authService.signup(payload).subscribe({
+    this.authService.signup(userData).subscribe({
       next: () => {
-        alert('Signup Successful! Please wait for Admin approval.');
+        alert('Signup Successful! Your profile is pending Admin approval.');
         this.router.navigate(['/login']);
       },
       error: (err: any) => {
-        this.passwordError = err.error?.message || 'Account creation failed.';
+        this.passwordError = err.error?.message || 'Registration failed. ID or Email might be in use.';
       }
     });
   }

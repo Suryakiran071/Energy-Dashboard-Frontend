@@ -32,24 +32,57 @@
 
   <!-- METER GRID -->
   <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div *ngFor="let meter of filteredMeters" class="bg-gray-800 shadow-lg hover:border-indigo-500 border border-transparent transition-all rounded-xl p-6 text-center">
-      <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">{{ meter.name }}</h3>
-      <p class="text-3xl font-bold text-indigo-400">
-        {{ getKwhForMeter(meter.id) }} <span class="text-sm text-gray-500 font-normal">kWh</span>
-      </p>
-    </div>
-  </section>
+  <div *ngFor="let meter of filteredMeters" 
+       (click)="selectedView = meter.id; renderChart()"
+       [class.ring-2]="selectedView === meter.id"
+       [class.ring-indigo-500]="selectedView === meter.id"
+       class="bg-gray-800 cursor-pointer shadow-lg hover:bg-gray-700/50 border border-transparent transition-all rounded-xl p-6 text-center group">
+    
+    <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2 group-hover:text-indigo-300">
+      {{ meter.name }}
+    </h3>
+    <p class="text-3xl font-bold text-indigo-400">
+      {{ getKwhForMeter(meter.id) }} <span class="text-sm text-gray-500 font-normal">kWh</span>
+    </p>
+        <p class="text-[10px] text-indigo-500 font-bold mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      ANALYZE
+    </p>
+  </div>
+</section>
 
   <!-- CHART -->
   <section class="bg-gray-800 shadow-xl rounded-xl p-6 border border-gray-700">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-bold text-gray-200 tracking-tight">Demand Analysis (Total Line Load)</h2>
-      <span class="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded font-bold uppercase tracking-widest">Live Data</span>
+  <h2 class="text-lg font-bold text-gray-200">
+    Demand Analysis: {{ selectedView === 'all' ? 'Total Line' : 'Meter #' + selectedView }}
+  </h2>
+  <button *ngIf="selectedView !== 'all'" 
+          (click)="selectedView = 'all'; renderChart()"
+          class="text-[10px] bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded-full font-bold uppercase transition-all">
+    Reset to Total
+  </button>
+</div>
+
+    <!-- NEW DRILL-DOWN DROPDOWN -->
+    <div class="flex items-center space-x-3 bg-gray-900/50 p-2 rounded-lg border border-gray-700">
+      <label class="text-[10px] text-gray-400 font-black uppercase ml-2">Analyze:</label>
+      <select 
+        [(ngModel)]="selectedView" 
+        (change)="onViewChange()"
+        class="bg-transparent text-indigo-400 text-xs font-bold focus:outline-none cursor-pointer pr-4">
+        <option value="all">Entire Line (Summed)</option>
+        <option *ngFor="let m of filteredMeters" [value]="m.id">
+          Meter: {{ m.name }}
+        </option>
+      </select>
     </div>
-    <div class="h-[350px] w-full">
-      <canvas id="demandChart"></canvas>
-    </div>
-  </section>
+  </div>
+
+  <div class="h-[350px] w-full">
+    <canvas id="demandChart"></canvas>
+  </div>
+</section>
 
   <!-- TABLE -->
   <section class="bg-gray-800 shadow-xl rounded-xl p-6 border border-gray-700">

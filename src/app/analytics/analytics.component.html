@@ -50,7 +50,6 @@
         <tr>
           <th class="px-6 py-4 font-semibold">Interval Window</th>
           <th class="px-6 py-4 font-semibold">Total Consumption</th>
-          <th class="px-6 py-4 font-semibold">Detection Status</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-700">
@@ -62,12 +61,7 @@
             <span class="text-indigo-400 font-bold">{{ item.total }}</span> 
             <span class="text-gray-500 text-xs ml-1">kWh</span>
           </td>
-          <td class="px-6 py-4">
-            <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              <span class="text-xs text-green-500/80 uppercase font-medium">Verified</span>
-            </div>
-          </td>
+          
         </tr>
         <tr *ngIf="halfHourData.length === 0">
           <td colspan="3" class="px-6 py-10 text-center text-gray-500 italic">

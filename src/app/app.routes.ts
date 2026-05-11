@@ -5,7 +5,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { AboutComponent } from './about/about.component';
 import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
-import { authGuard } from './guards/auth.guard'; // Import the guard
+import { authGuard } from './guards/auth.guard';
 import { AdminManagementComponent } from './admin-management/admin-management.component';
 import { ReportsComponent } from './reports/reports.component';
 
@@ -23,7 +23,7 @@ export const routes: Routes = [
   path: 'admin', 
   component: AdminManagementComponent, 
   canActivate: [authGuard],
-  data: { expectedRole: 'ROLE_ADMIN' } // This matches the check in the guard
+  data: { expectedRole: 'ROLE_ADMIN' }
 },
 
   // Redirects
